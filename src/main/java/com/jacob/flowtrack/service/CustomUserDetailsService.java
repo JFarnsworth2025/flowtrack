@@ -2,6 +2,7 @@ package com.jacob.flowtrack.service;
 
 import com.jacob.flowtrack.entity.User;
 import com.jacob.flowtrack.repository.UserRepository;
+import com.jacob.flowtrack.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -19,8 +20,7 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         User user = userRepository.findByUsername(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
-        return org.springframework.security.core.userdetails.User.builder().username(user.getUsername()).password(user.getPassword()).roles(user.getRole().name()).build();
-
+        return new CustomUserDetails(user);
     }
 
 }

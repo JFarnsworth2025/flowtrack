@@ -1,7 +1,10 @@
 package com.jacob.flowtrack.controller;
 
+import com.jacob.flowtrack.dto.RegisterRequest;
+import com.jacob.flowtrack.entity.Role;
 import com.jacob.flowtrack.entity.User;
 import com.jacob.flowtrack.repository.UserRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
@@ -15,8 +18,11 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/register")
-    public String register(@RequestBody User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
+    public String register(@Valid @RequestBody RegisterRequest request) {
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(Role.valueOf(request.getRole()));
         userRepository.save(user);
         return "User registered successfully";
     }
