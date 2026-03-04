@@ -1,96 +1,169 @@
 # FlowTrack – Secure Financial Backend Platform
 
-FlowTrack is a Spring Boot REST API designed as the foundation for a secure, scalable financial tracking system.
+FlowTrack is a production-oriented Spring Boot REST API designed as the backend foundation for a secure and scalable financial tracking platform.
 
-This project demonstrates production-oriented backend architecture, authentication design, and database-driven security implementation.
+The system is structured with SaaS-style architecture, workspace-based collaboration, role-based permissions, and an expense approval workflow.
 
-It serves as:
-
-- A backend portfolio project
-- A scalable authentication foundation
-- The base of a future expense tracking system
+This project demonstrates real-world backend design patterns used in modern financial software systems.
 
 ---
 
-## 🚀 Project Purpose
+# 🚀 Project Purpose
 
-FlowTrack is being built as a modular backend system capable of evolving into a SaaS-ready financial platform.
+FlowTrack is built as a modular backend platform capable of evolving into a full SaaS expense management system.
 
-The goal is to structure the system as if it were deployable to production, even while remaining open-source for learning and portfolio purposes.
+The architecture prioritizes:
+
+- Security
+- Scalability
+- Clean service layering
+- Multi-user collaboration
+- Financial data integrity
+
+This repository serves both as:
+
+• A backend engineering portfolio project  
+• A real-world system design exercise
 
 ---
 
-## 🏗 Current Features
+# 🏗 Current System Features
 
-### 🔐 Authentication System
+## 🔐 Secure Authentication
+
 - User registration
 - BCrypt password hashing
-- Database-backed authentication
 - Custom `UserDetailsService`
-- HTTP Basic authentication
-- Protected endpoints
-
-### 🧱 Architecture
-- Layered structure (Controller → Service → Repository)
 - Spring Security configuration
-- JPA entity modeling
-- PostgreSQL persistence
-- Environment-based configuration support
-
----
-
-## 🔄 Authentication Flow
-
-1. Client sends request with Basic Authentication header
-2. Spring Security intercepts the request
-3. `CustomUserDetailsService` loads user from database
-4. BCrypt verifies password
-5. Authentication object is created
-6. Request proceeds to protected endpoint
+- Database-backed authentication
+- Stateless-ready architecture
 
 Passwords are never stored in plain text.
 
 ---
 
-## 📡 Current API Endpoints
+## 👥 Workspace System
 
-### 1️⃣ Register User
+Users operate inside **Workspaces**, allowing the platform to support both:
 
-**POST** `/auth/register`
+• Personal expense tracking  
+• Business financial collaboration
 
-#### Request Body
+Each workspace contains:
 
-```json
-{
-  "username": "jacob",
-  "password": "test123",
-  "role": "USER"
-}
+- Members
+- Role-based permissions
+- Shared expenses
+
+---
+
+## 👑 Role-Based Permissions
+
+Workspace roles control financial authority.
+
+| Role | Permissions |
+|-----|-----|
+| OWNER | Full control |
+| ADMIN | Approve user expenses |
+| USER | Submit expenses |
+
+This structure mirrors real financial approval chains used in organizations.
+
+---
+
+## 💰 Expense Management
+
+Users can:
+
+- Submit expenses
+- Update their expenses
+- Delete their expenses
+- Filter expenses
+- Paginate results
+
+Supported filters:
+
+- Category
+- Minimum amount
+- Maximum amount
+
+---
+
+## ✔ Expense Approval Workflow
+
+Business workspaces support a financial approval pipeline.
+
+Expense statuses:
+
+```
+PENDING
+APPROVED
+REJECTED
 ```
 
-#### Response
+Approval rules:
 
 ```
-User registered successfully
+OWNER → can approve anyone
+ADMIN → can approve USER expenses
+USER → cannot approve expenses
 ```
 
 ---
 
-### 2️⃣ Authentication Test
+## 📜 Financial Audit Trail
 
-**GET** `/auth/test`
-
-Requires Basic Authentication header.
-
-#### Response
+Every expense records:
 
 ```
-You are now authenticated.
+submittedBy
+approvedBy
+status
+timestamps
 ```
+
+This creates a transparent approval history similar to real financial systems.
 
 ---
 
-## 🛠 Tech Stack
+## 📊 Financial Data Queries
+
+The backend supports financial insights including:
+
+- Total expenses
+- Expense count
+- Category breakdown
+- Monthly summaries
+- Filtered queries with pagination
+
+---
+
+# 🧱 Backend Architecture
+
+The project follows a layered architecture:
+
+```
+Controller
+   ↓
+Service
+   ↓
+Repository
+   ↓
+Database
+```
+
+This ensures:
+
+- Clear separation of concerns
+- Maintainability
+- Testability
+- Scalability
+
+---
+
+# 🛠 Tech Stack
+
+Core technologies used:
 
 - Java 17
 - Spring Boot
@@ -102,91 +175,147 @@ You are now authenticated.
 
 ---
 
-## 📊 Project Maturity Level
+# 📡 Example API Endpoints
 
-**Current Stage:** Secure Backend Foundation (MVP Phase 1)
+### Register User
 
-### ✅ Completed
+```
+POST /auth/register
+```
+
+Request:
+
+```json
+{
+  "username": "jacob",
+  "password": "test123",
+  "role": "USER"
+}
+```
+
+---
+
+### Create Expense
+
+```
+POST /expenses
+```
+
+Creates a new expense record.
+
+---
+
+### Get User Expenses
+
+```
+GET /expenses
+```
+
+Supports filtering and pagination.
+
+---
+
+### Approve Expense
+
+```
+POST /admin/expenses/{id}/approve
+```
+
+Admin/Owner approval endpoint.
+
+---
+
+### Reject Expense
+
+```
+POST /admin/expenses/{id}/reject
+```
+
+Admin/Owner rejection endpoint.
+
+---
+
+# 📊 Project Maturity
+
+Current Development Stage:
+
+```
+Backend Core System
+```
+
+### Completed
+
 - Authentication infrastructure
-- Password encryption
-- Database persistence
-- Secure endpoint protection
-- Clean architectural layering
-
-### 🔜 Planned
-- JWT-based authentication
-- Role-based authorization
+- Workspace architecture
+- Role-based permissions
 - Expense domain modeling
-- DTO layer implementation
-- Global exception handling
-- API documentation (Swagger)
-- Dockerization
-- CI/CD pipeline
-
----
-
-## 🗺 Roadmap
-
-### Phase 1 – Authentication Upgrade
-- Replace Basic Auth with JWT
-- Implement stateless authentication
-- Add token expiration and refresh tokens
-
-### Phase 2 – Authorization
-- Role-based endpoint restrictions
-- Admin-only routes
-- User-specific data isolation
-
-### Phase 3 – Expense Domain
-- Expense entity implementation
-- CRUD operations
-- Category filtering
-- Date filtering
+- Expense approval workflow
+- Filtering and pagination
 - Financial summaries
-
-### Phase 4 – Production Hardening
-- DTO separation
-- Validation layer
-- Centralized exception handling
-- Swagger documentation
-- Docker containerization
-- Environment profiles
-- Deployment readiness
+- DTO response system
+- Service layer architecture
 
 ---
 
-## ⚙️ Setup Instructions
+# 🗺 Planned Features
 
-### 1️⃣ Clone Repository
+### Authentication Improvements
+
+- JWT authentication
+- Token refresh
+- Stateless authentication
+
+### SaaS Infrastructure
+
+- Workspace invitations
+- Multi-user collaboration
+- Workspace dashboards
+
+### Developer Tooling
+
+- Swagger API documentation
+- Docker containerization
+- CI/CD pipeline
+- Production deployment configuration
+
+---
+
+# ⚙️ Setup Instructions
+
+### Clone Repository
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/flowtrack.git
 cd flowtrack
 ```
 
-### 2️⃣ Configure Environment Variables
+---
 
-#### Windows (PowerShell)
+### Configure Environment Variables
+
+Windows (PowerShell)
 
 ```powershell
 $env:DB_USERNAME="postgres"
 $env:DB_PASSWORD="yourpassword"
 ```
 
-#### Mac/Linux
+Mac/Linux
 
 ```bash
 export DB_USERNAME=postgres
 export DB_PASSWORD=yourpassword
 ```
 
-### 3️⃣ Run Application
+---
+
+### Run Application
 
 ```bash
 ./mvnw spring-boot:run
 ```
 
-Application runs at:
+Server runs at:
 
 ```
 http://localhost:8080
@@ -194,23 +323,28 @@ http://localhost:8080
 
 ---
 
-## 🧠 Design Philosophy
+# 🧠 Design Philosophy
 
-FlowTrack is intentionally structured as a scalable backend platform rather than a simple authentication demo.
+FlowTrack is designed as a production-oriented backend rather than a simple authentication demo.
 
-The architecture emphasizes:
+Key architectural priorities:
 
-- Separation of concerns
-- Secure authentication practices
-- Clean layering
-- Future scalability
-- Production-oriented structure
+- Security-first design
+- Role-based financial controls
+- Scalable workspace architecture
+- Clean service layering
+- Financial data integrity
 
 ---
 
-## 📌 Status
+# 📌 Status
 
 Active development.
 
-Authentication layer complete.  
-Expense tracking domain implementation in progress.
+Current focus:
+
+```
+Expense system expansion
+Workspace analytics
+Production hardening
+```
