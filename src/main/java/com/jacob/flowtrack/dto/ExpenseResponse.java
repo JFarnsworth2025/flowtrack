@@ -1,5 +1,6 @@
 package com.jacob.flowtrack.dto;
 
+import com.jacob.flowtrack.entity.ExpenseStatus;
 import lombok.Builder;
 import lombok.Data;
 
@@ -15,5 +16,8 @@ public class ExpenseResponse {
     private BigDecimal amount;
     private String category;
     private LocalDateTime createdAt;
+    private ExpenseStatus status;
+    private String submittedBy;
+    private String approvedBy;
 
 }

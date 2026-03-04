@@ -35,4 +35,7 @@ public interface ExpenseRepository extends JpaRepository<Expense, Long> {
 
     long countByUser(User user);
 
+    @Query("SELECT e FROM Expense e WHERE e.workspace.id = :workspaceId AND (:category IS NULL OR LOWER(e.category) = :category) AND (:min IS NULL OR e.amount >= :min) AND (:max IS NULL OR e.amount <= :max)")
+    Page<Expense> filterWorkspaceExpenses(@Param("workspaceId") Long workspaceId, @Param("category") String category, @Param("min") BigDecimal min, @Param("max") BigDecimal max, Pageable pageable);
+
 }

@@ -32,4 +32,20 @@ public class Expense {
     @JoinColumn(name = "user_id")
     private User user;
 
+    @ManyToOne
+    @JoinColumn(name = "workspace_id", nullable = false)
+    private Workspace workspace;
+
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private ExpenseStatus status;
+
+    @ManyToOne
+    @JoinColumn(name = "submitted_by")
+    private User submittedBy;
+
+    @ManyToOne
+    @JoinColumn(name = "approved_by")
+    private User approvedBy;
+
 }

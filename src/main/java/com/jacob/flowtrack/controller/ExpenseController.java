@@ -40,11 +40,11 @@ public class ExpenseController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<PaginatedResponse<ExpenseResponse>>> getExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam(required = false) String category, @RequestParam(required = false) BigDecimal min, @RequestParam(required = false) BigDecimal max, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+    public ResponseEntity<ApiResponse<PaginatedResponse<ExpenseResponse>>> getExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam Long workspaceId, @RequestParam(required = false) String category, @RequestParam(required = false) BigDecimal min, @RequestParam(required = false) BigDecimal max, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
 
         User user = customUserDetails.getUser();
 
-        Page<ExpenseResponse> expenses = expenseService.getUserExpenses(user, category, min, max, page, size);
+        Page<ExpenseResponse> expenses = expenseService.getWorkspaceExpenses(workspaceId, user, category, min, max, page, size);
 
         PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(expenses);
 

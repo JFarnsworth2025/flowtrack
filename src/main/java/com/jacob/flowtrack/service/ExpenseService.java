@@ -3,16 +3,14 @@ package com.jacob.flowtrack.service;
 import com.jacob.flowtrack.dto.ExpenseRequest;
 import com.jacob.flowtrack.dto.ExpenseResponse;
 import com.jacob.flowtrack.dto.ExpenseSummaryResponse;
-import com.jacob.flowtrack.entity.Expense;
-import com.jacob.flowtrack.entity.User;
+import com.jacob.flowtrack.entity.*;
 import com.jacob.flowtrack.exception.ResourceNotFoundException;
-import com.jacob.flowtrack.repository.CategorySummary;
-import com.jacob.flowtrack.repository.ExpenseRepository;
-import com.jacob.flowtrack.repository.MonthlySummary;
+import com.jacob.flowtrack.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.parameters.P;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -27,10 +25,21 @@ import java.util.stream.Collectors;
 public class ExpenseService {
 
     private final ExpenseRepository expenseRepository;
+    private final WorkspaceRepository workspaceRepository;
+    private final WorkspaceMemberRepository workspaceMemberRepository;
 
     public ExpenseResponse addExpense(ExpenseRequest request, User user) {
 
-        Expense expense = Expense.builder().description(request.getDescription()).amount(request.getAmount()).category(request.getCategory()).createdAt(LocalDateTime.now()).user(user).build();
+        Workspace workspace = workspaceRepository.findById(request.getWorkspaceId()).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+        boolean isMember = workspaceMemberRepository.existsByUserAndWorkspace(user, workspace);
+
+        if(!isMember) {
+            throw new RuntimeException("You are not a member of this workspace.");
+        }
+
+        Expense expense = Expense.builder().description(request.getDescription()).amount(request.getAmount()).category(request.getCategory()).createdAt(LocalDateTime.now()).status(ExpenseStatus.PENDING).user(user).workspace(workspace).build();
+
         Expense saved = expenseRepository.save(expense);
 
         return mapToResponse(saved);
@@ -66,18 +75,23 @@ public class ExpenseService {
     }
 
     private ExpenseResponse mapToResponse(Expense expense) {
-        return ExpenseResponse.builder().id(expense.getId()).description(expense.getDescription()).amount(expense.getAmount()).category(expense.getCategory()).createdAt(expense.getCreatedAt()).build();
+        return ExpenseResponse.builder().id(expense.getId()).description(expense.getDescription()).amount(expense.getAmount()).category(expense.getCategory()).createdAt(expense.getCreatedAt()).status(expense.getStatus())
+                .submittedBy(expense.getSubmittedBy().getUsername()).approvedBy(expense.getApprovedBy() != null ? expense.getApprovedBy().getUsername() : null).build();
     }
 
-    public Page<ExpenseResponse> getUserExpenses(User user, String category, BigDecimal min, BigDecimal max, int page, int size) {
+    public Page<ExpenseResponse> getWorkspaceExpenses(Long workspaceId, User user, String category, BigDecimal min, BigDecimal max, int page, int size) {
 
-        if(category != null) {
-            category = category.toLowerCase();
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
+
+        boolean isMember = workspaceMemberRepository.existsByUserAndWorkspace(user, workspace);
+
+        if(!isMember) {
+             throw new RuntimeException("You are not a member of this workspace");
         }
 
         Pageable pageable = PageRequest.of(page, size);
 
-        Page<Expense> expenses = expenseRepository.filterExpenses(user, category, min, max, pageable);
+        Page<Expense> expenses = expenseRepository.filterWorkspaceExpenses(workspaceId, category, min, max, pageable);
 
         return expenses.map(this::mapToResponse);
     }
@@ -102,6 +116,61 @@ public class ExpenseService {
         List<MonthlySummary> results = expenseRepository.getMonthlySummary(userId);
 
         return results.stream().collect(Collectors.toMap(r -> r.getYear() + "-" + String.format("%02d", r.getMonth()), MonthlySummary::getTotal, (a,b) -> a, LinkedHashMap::new));
+    }
+
+    public void approveExpense(Long id, User approver) {
+
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        Workspace workspace = expense.getWorkspace();
+        WorkspaceMember approverMembership = workspaceMemberRepository.findByUserAndWorkspace(approver, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+        WorkspaceMember submitterMembership = workspaceMemberRepository.findByUserAndWorkspace(expense.getUser(), workspace).orElseThrow(() -> new RuntimeException("Submitter not found in workspace"));
+        WorkspaceRole approverRole = approverMembership.getRole();
+        WorkspaceRole submitterRole = submitterMembership.getRole();
+
+        if(approverRole == WorkspaceRole.OWNER) {
+
+        } else if(approverRole == WorkspaceRole.ADMIN) {
+            if(submitterRole != WorkspaceRole.USER) {
+                throw new RuntimeException("Admins can only approve user expenses");
+            }
+        }
+
+        else {
+            throw new RuntimeException("Users cannot approve expenses");
+        }
+
+        expense.setStatus(ExpenseStatus.APPROVED);
+        expense.setApprovedBy(approver);
+
+        expenseRepository.save(expense);
+    }
+
+    public void rejectExpenses(Long id, User approver) {
+
+        Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+        Workspace workspace = expense.getWorkspace();
+        WorkspaceMember approverMembership = workspaceMemberRepository.findByUserAndWorkspace(approver, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+        WorkspaceMember submitterMembership = workspaceMemberRepository.findByUserAndWorkspace(expense.getUser(), workspace).orElseThrow(() -> new RuntimeException("Submitter not found in workspace"));
+        WorkspaceRole approverRole = approverMembership.getRole();
+        WorkspaceRole submitterRole = submitterMembership.getRole();
+
+        if(approverRole == WorkspaceRole.OWNER) {
+
+        } else if(approverRole == WorkspaceRole.ADMIN) {
+            if(submitterRole != WorkspaceRole.USER) {
+                throw new RuntimeException("Admins can only reject user expenses");
+            }
+        }
+
+        else {
+            throw new RuntimeException("Users cannot reject expenses");
+        }
+
+        expense.setStatus(ExpenseStatus.REJECTED);
+        expense.setApprovedBy(approver);
+
+        expenseRepository.save(expense);
+
     }
 
 }
