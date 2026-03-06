@@ -1,59 +1,58 @@
 # FlowTrack – Secure Financial Backend Platform
 
-FlowTrack is a production-oriented Spring Boot REST API designed as the backend foundation for a secure and scalable financial tracking platform.
+FlowTrack is a **production-oriented Spring Boot REST API** designed as the backend foundation for a secure and scalable financial tracking platform.
 
-The system is structured with SaaS-style architecture, workspace-based collaboration, role-based permissions, and an expense approval workflow.
+The system uses **SaaS-style architecture**, workspace-based collaboration, role-based permissions, and an expense approval workflow.
 
-This project demonstrates real-world backend design patterns used in modern financial software systems.
+This project demonstrates real-world backend design patterns used in **modern financial software systems**.
 
 ---
 
 # 🚀 Project Purpose
 
-FlowTrack is built as a modular backend platform capable of evolving into a full SaaS expense management system.
+FlowTrack is built as a modular backend platform capable of evolving into a **full SaaS expense management system**.
 
 The architecture prioritizes:
 
-- Security
-- Scalability
-- Clean service layering
-- Multi-user collaboration
-- Financial data integrity
+* Security
+* Scalability
+* Clean service layering
+* Multi-user collaboration
+* Financial data integrity
 
 This repository serves both as:
 
-• A backend engineering portfolio project  
-• A real-world system design exercise
+• A **backend engineering portfolio project**
+• A **real-world system design exercise**
 
 ---
 
-# 🏗 Current System Features
+# 🏗 System Features
 
 ## 🔐 Secure Authentication
 
-- User registration
-- BCrypt password hashing
-- Custom `UserDetailsService`
-- Spring Security configuration
-- Database-backed authentication
-- Stateless-ready architecture
+* User registration
+* BCrypt password hashing
+* Custom `UserDetailsService`
+* Spring Security configuration
+* Database-backed authentication
 
-Passwords are never stored in plain text.
+Passwords are **never stored in plain text**.
 
 ---
 
 ## 👥 Workspace System
 
-Users operate inside **Workspaces**, allowing the platform to support both:
+Users operate inside **Workspaces**, enabling the platform to support both:
 
-• Personal expense tracking  
+• Personal expense tracking
 • Business financial collaboration
 
 Each workspace contains:
 
-- Members
-- Role-based permissions
-- Shared expenses
+* Members
+* Role-based permissions
+* Shared expenses
 
 ---
 
@@ -61,13 +60,13 @@ Each workspace contains:
 
 Workspace roles control financial authority.
 
-| Role | Permissions |
-|-----|-----|
-| OWNER | Full control |
+| Role  | Permissions           |
+| ----- | --------------------- |
+| OWNER | Full control          |
 | ADMIN | Approve user expenses |
-| USER | Submit expenses |
+| USER  | Submit expenses       |
 
-This structure mirrors real financial approval chains used in organizations.
+This structure mirrors **real financial approval chains used in organizations**.
 
 ---
 
@@ -75,17 +74,17 @@ This structure mirrors real financial approval chains used in organizations.
 
 Users can:
 
-- Submit expenses
-- Update their expenses
-- Delete their expenses
-- Filter expenses
-- Paginate results
+* Submit expenses
+* Update expenses
+* Delete expenses
+* Filter expenses
+* Paginate results
 
 Supported filters:
 
-- Category
-- Minimum amount
-- Maximum amount
+* Category
+* Minimum amount
+* Maximum amount
 
 ---
 
@@ -122,25 +121,77 @@ status
 timestamps
 ```
 
-This creates a transparent approval history similar to real financial systems.
+This creates a **transparent approval history similar to real financial systems**.
+
+Expense actions are logged in an **activity history system**.
+
+Example:
+
+```
+Expense Submitted
+Expense Approved
+Expense Rejected
+Expense Updated
+```
 
 ---
 
 ## 📊 Financial Data Queries
 
-The backend supports financial insights including:
+The backend supports financial analytics including:
 
-- Total expenses
-- Expense count
-- Category breakdown
-- Monthly summaries
-- Filtered queries with pagination
+* Total expenses
+* Expense count
+* Category breakdown
+* Monthly summaries
+* Filtered queries with pagination
+
+---
+
+# 📡 Example API Endpoints
+
+### Authentication
+
+```
+POST /auth/register
+POST /auth/login
+```
+
+---
+
+### Expense Management
+
+```
+POST /expenses
+POST /expenses/bulk
+GET /expenses
+PUT /expenses/{id}
+DELETE /expenses/{id}
+```
+
+---
+
+### Expense Activity
+
+```
+GET /expenses/{id}/activity
+```
+
+---
+
+### Expense Analytics
+
+```
+GET /expenses/summary
+GET /expenses/summary/categories
+GET /expenses/summary/monthly
+```
 
 ---
 
 # 🧱 Backend Architecture
 
-The project follows a layered architecture:
+The project follows a **layered architecture**:
 
 ```
 Controller
@@ -152,12 +203,12 @@ Repository
 Database
 ```
 
-This ensures:
+Benefits:
 
-- Clear separation of concerns
-- Maintainability
-- Testability
-- Scalability
+* Clear separation of concerns
+* Maintainability
+* Testability
+* Scalability
 
 ---
 
@@ -165,73 +216,13 @@ This ensures:
 
 Core technologies used:
 
-- Java 17
-- Spring Boot
-- Spring Security
-- Spring Data JPA
-- PostgreSQL
-- Lombok
-- Maven
-
----
-
-# 📡 Example API Endpoints
-
-### Register User
-
-```
-POST /auth/register
-```
-
-Request:
-
-```json
-{
-  "username": "jacob",
-  "password": "test123",
-  "role": "USER"
-}
-```
-
----
-
-### Create Expense
-
-```
-POST /expenses
-```
-
-Creates a new expense record.
-
----
-
-### Get User Expenses
-
-```
-GET /expenses
-```
-
-Supports filtering and pagination.
-
----
-
-### Approve Expense
-
-```
-POST /admin/expenses/{id}/approve
-```
-
-Admin/Owner approval endpoint.
-
----
-
-### Reject Expense
-
-```
-POST /admin/expenses/{id}/reject
-```
-
-Admin/Owner rejection endpoint.
+* Java 17
+* Spring Boot
+* Spring Security
+* Spring Data JPA
+* PostgreSQL
+* Lombok
+* Maven
 
 ---
 
@@ -245,15 +236,16 @@ Backend Core System
 
 ### Completed
 
-- Authentication infrastructure
-- Workspace architecture
-- Role-based permissions
-- Expense domain modeling
-- Expense approval workflow
-- Filtering and pagination
-- Financial summaries
-- DTO response system
-- Service layer architecture
+* Authentication infrastructure
+* Workspace architecture
+* Role-based permissions
+* Expense domain modeling
+* Expense approval workflow
+* Expense activity tracking
+* Filtering and pagination
+* Financial summaries
+* DTO response system
+* Service layer architecture
 
 ---
 
@@ -261,22 +253,22 @@ Backend Core System
 
 ### Authentication Improvements
 
-- JWT authentication
-- Token refresh
-- Stateless authentication
+* JWT authentication
+* Token refresh
+* Stateless authentication
 
 ### SaaS Infrastructure
 
-- Workspace invitations
-- Multi-user collaboration
-- Workspace dashboards
+* Workspace invitations
+* Multi-user collaboration
+* Workspace dashboards
 
 ### Developer Tooling
 
-- Swagger API documentation
-- Docker containerization
-- CI/CD pipeline
-- Production deployment configuration
+* Swagger API documentation
+* Docker containerization
+* CI/CD pipeline
+* Production deployment configuration
 
 ---
 
@@ -325,15 +317,15 @@ http://localhost:8080
 
 # 🧠 Design Philosophy
 
-FlowTrack is designed as a production-oriented backend rather than a simple authentication demo.
+FlowTrack is designed as a **production-oriented backend system** rather than a simple authentication demo.
 
 Key architectural priorities:
 
-- Security-first design
-- Role-based financial controls
-- Scalable workspace architecture
-- Clean service layering
-- Financial data integrity
+* Security-first design
+* Role-based financial controls
+* Scalable workspace architecture
+* Clean service layering
+* Financial data integrity
 
 ---
 
