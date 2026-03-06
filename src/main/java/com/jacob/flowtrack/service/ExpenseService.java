@@ -1,5 +1,6 @@
 package com.jacob.flowtrack.service;
 
+import com.jacob.flowtrack.dto.ExpenseActivityResponse;
 import com.jacob.flowtrack.dto.ExpenseRequest;
 import com.jacob.flowtrack.dto.ExpenseResponse;
 import com.jacob.flowtrack.dto.ExpenseSummaryResponse;
@@ -27,6 +28,7 @@ public class ExpenseService {
     private final ExpenseRepository expenseRepository;
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
+    private final ExpenseActivityRepository expenseActivityRepository;
 
     public ExpenseResponse addExpense(ExpenseRequest request, User user) {
 
@@ -41,6 +43,10 @@ public class ExpenseService {
         Expense expense = Expense.builder().description(request.getDescription()).amount(request.getAmount()).category(request.getCategory()).createdAt(LocalDateTime.now()).status(ExpenseStatus.PENDING).user(user).workspace(workspace).build();
 
         Expense saved = expenseRepository.save(expense);
+
+        expenseActivityRepository.save(ExpenseActivity.builder().expense(saved).user(user).action("SUBMITTED").createdAt(LocalDateTime.now()).build());
+
+        expense.setSubmittedBy(user);
 
         return mapToResponse(saved);
 
@@ -142,10 +148,12 @@ public class ExpenseService {
         expense.setStatus(ExpenseStatus.APPROVED);
         expense.setApprovedBy(approver);
 
+        expenseActivityRepository.save(ExpenseActivity.builder().expense(expense).user(approver).action("APPROVED").createdAt(LocalDateTime.now()).build());
+
         expenseRepository.save(expense);
     }
 
-    public void rejectExpenses(Long id, User approver) {
+    public void rejectExpense(Long id, User approver) {
 
         Expense expense = expenseRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         Workspace workspace = expense.getWorkspace();
@@ -169,7 +177,19 @@ public class ExpenseService {
         expense.setStatus(ExpenseStatus.REJECTED);
         expense.setApprovedBy(approver);
 
+        expenseActivityRepository.save(ExpenseActivity.builder().expense(expense).user(approver).action("REJECTED").createdAt(LocalDateTime.now()).build());
+
         expenseRepository.save(expense);
+
+    }
+
+    public List<ExpenseActivityResponse> getExpenseActivity(Long expenseId) {
+
+        Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
+
+        List<ExpenseActivity> activities = expenseActivityRepository.findByExpenseOrderByCreatedAtDesc(expense);
+
+        return activities.stream().map(a -> new ExpenseActivityResponse(a.getAction(), a.getUser().getUsername(), a.getCreatedAt())).toList();
 
     }
 

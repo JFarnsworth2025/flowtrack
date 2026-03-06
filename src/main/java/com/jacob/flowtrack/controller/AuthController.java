@@ -9,6 +9,7 @@ import com.jacob.flowtrack.repository.WorkspaceMemberRepository;
 import com.jacob.flowtrack.repository.WorkspaceRepository;
 import com.jacob.flowtrack.response.ApiResponse;
 import com.jacob.flowtrack.security.jwt.JwtService;
+import jakarta.transaction.Transactional;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -31,18 +32,18 @@ public class AuthController {
     private final WorkspaceRepository workspaceRepository;
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
+    @Transactional
     @PostMapping("/register")
     public String register(@Valid @RequestBody RegisterRequest request) {
-        User user = new User();
-        user.setUsername(request.getUsername());
-        user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(Role.valueOf(request.getRole()));
-        User savedUser = userRepository.save(user);
 
-        Workspace personalWorkspace = Workspace.builder().name(savedUser.getUsername() + "'s Personal Workspace").type(WorkspaceType.PERSONAL).createdAt(LocalDateTime.now()).build();
-        Workspace savedWorkspace = workspaceRepository.save(personalWorkspace);
-        WorkspaceMember membership = WorkspaceMember.builder().workspace(savedWorkspace).user(savedUser).role(WorkspaceRole.OWNER).joinedAt(LocalDateTime.now()).build();
-        workspaceMemberRepository.save(membership);
+        User user = User.builder().username(request.getUsername()).password(passwordEncoder.encode(request.getPassword())).role(Role.USER).build();
+        userRepository.save(user);
+
+        Workspace workspace = Workspace.builder().name(user.getUsername() + "'s Personal Workspace").createdAt(LocalDateTime.now()).build();
+        workspaceRepository.save(workspace);
+
+        WorkspaceMember member = WorkspaceMember.builder().workspace(workspace).user(user).role(WorkspaceRole.OWNER).joinedAt(LocalDateTime.now()).build();
+        workspaceMemberRepository.save(member);
 
         return "User registered successfully";
     }

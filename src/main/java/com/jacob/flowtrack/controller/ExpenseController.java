@@ -1,5 +1,6 @@
 package com.jacob.flowtrack.controller;
 
+import com.jacob.flowtrack.dto.ExpenseActivityResponse;
 import com.jacob.flowtrack.response.PaginatedResponse;
 import com.jacob.flowtrack.security.CustomUserDetails;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -107,6 +108,15 @@ public class ExpenseController {
         Map<String, BigDecimal> data = expenseService.getMonthlyBreakdown(user.getId());
 
         return ResponseEntity.ok(ApiResponse.success("Monthly summary retrieved", data));
+    }
+
+    @GetMapping("/{id}/activity")
+    public ResponseEntity<ApiResponse<List<ExpenseActivityResponse>>> getExpenseActivity(@PathVariable Long id) {
+
+        List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id);
+
+        return ResponseEntity.ok(ApiResponse.success("Expense activity retrieved", activity));
+
     }
 
 }
