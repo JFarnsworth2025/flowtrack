@@ -56,6 +56,25 @@ Each workspace contains:
 
 ---
 
+## 📩 Workspace Invitations
+
+Workspaces support a **secure invite workflow** for onboarding new members.
+
+Administrators can:
+
+* Invite users to a workspace
+* Assign roles during invitation
+* View pending invitations
+* Cancel invitations
+
+Invitation lifecycle:
+* Invite Created
+* Invited Accepted
+* Invited Canceled
+* Invited Expired
+
+---
+
 ## 👑 Role-Based Permissions
 
 Workspace roles control financial authority.
@@ -67,6 +86,20 @@ Workspace roles control financial authority.
 | USER  | Submit expenses       |
 
 This structure mirrors **real financial approval chains used in organizations**.
+
+---
+
+## 👥 Workspace Member Management
+
+Workspace administrators can manage members through role management and removal.
+
+Supported actions:
+
+* Promote users to ADMIN
+* Demote admins to USER
+* Remove members from a workspace
+
+The workspace OWNER cannot be removed.
 
 ---
 
@@ -189,6 +222,52 @@ GET /expenses/summary/monthly
 
 ---
 
+### Workspace Members
+
+```
+GET /workspaces/{id}/members
+PUT /workspaces/{id}/members/{userId}/role
+DELETE /workspaces/{id}/members/{userId}
+```
+---
+
+### Workspace Invitations
+
+```
+POST /workspaces/{id}/invites
+GET /workspaces/{id}/invites
+POST /invites/{token}/accept
+DELETE /workspaces/{id}/invites/{inviteId}
+```
+
+---
+
+### Workspace Budgets
+
+```
+POST /workspaces/{id}/budgets
+GET /workspaces/{id}/budgets
+```
+---
+
+## 💳 Workspace Budgeting
+
+Workspaces can define **monthly category spending limits**.
+
+Example budgets:
+* Travel --> $5000/month
+* Equipment --> $10000/month
+* Food --> $2000/month
+
+When expenses are submitted, the system can:
+* Calculate monthly category spending
+* Compare spending against budget limits
+* Detect budget overages
+
+This enables financial governance and spending controls.
+
+---
+
 # 🧱 Backend Architecture
 
 The project follows a **layered architecture**:
@@ -238,12 +317,15 @@ Backend Core System
 
 * Authentication infrastructure
 * Workspace architecture
+* Workspace invitations
+* Workspace member management
 * Role-based permissions
 * Expense domain modeling
 * Expense approval workflow
 * Expense activity tracking
 * Filtering and pagination
 * Financial summaries
+* Workspace budgeting
 * DTO response system
 * Service layer architecture
 
