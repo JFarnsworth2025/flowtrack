@@ -1,17 +1,15 @@
 package com.jacob.flowtrack.controller;
 
-import com.jacob.flowtrack.entity.Role;
-import com.jacob.flowtrack.entity.WorkspaceRole;
+import com.jacob.flowtrack.dto.ExpenseResponse;
 import com.jacob.flowtrack.response.ApiResponse;
 import com.jacob.flowtrack.security.CustomUserDetails;
 import com.jacob.flowtrack.service.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/admin/expenses")
@@ -34,6 +32,14 @@ public class AdminExpenseController {
         expenseService.rejectExpense(id, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success("Expense Denied", null));
+    }
+
+    @GetMapping("/pending")
+    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getPendingExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        List<ExpenseResponse> pending = expenseService.getPendingExpenses(customUserDetails.getUser());
+
+        return ResponseEntity.ok(ApiResponse.success("Pending expenses retrieved", pending));
     }
 
 }

@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ExpenseSummaryResponse {
+public class CreateBudgetRequest {
 
-    private BigDecimal totalSpent;
-    private long totalExpenses;
+    private String category;
+    private BigDecimal monthlyLimit;
 
 }

@@ -111,12 +111,10 @@ public class ExpenseController {
     }
 
     @GetMapping("/{id}/activity")
-    public ResponseEntity<ApiResponse<List<ExpenseActivityResponse>>> getExpenseActivity(@PathVariable Long id) {
+    public ResponseEntity<ApiResponse<List<ExpenseActivityResponse>>> getExpenseActivity(@PathVariable Long id, User user) {
 
-        List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id);
+        List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id, user);
 
         return ResponseEntity.ok(ApiResponse.success("Expense activity retrieved", activity));
-
     }
-
 }

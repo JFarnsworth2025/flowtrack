@@ -10,7 +10,7 @@ import java.util.List;
 
 public interface ExpenseActivityRepository extends JpaRepository<ExpenseActivity, Long> {
 
-    @Query("SELECT a FROM ExpenseActivity a JOIN FETCH a.user WHERE a.expense = :expense ORDER BY a.createdAt DESC")
-    List<ExpenseActivity> findByExpenseOrderByCreatedAtDesc(@Param("expense") Expense expense);
+    @Query("SELECT a FROM ExpenseActivity a JOIN FETCH a.user WHERE a.expense = :expense ORDER BY a.createdAt ASC")
+    List<ExpenseActivity> findByExpenseOrderByCreatedAtAsc(@Param("expense") Expense expense);
 
 }

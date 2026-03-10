@@ -1,17 +1,15 @@
 package com.jacob.flowtrack.dto;
 
+import com.jacob.flowtrack.entity.WorkspaceRole;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Getter
 @Setter
 @AllArgsConstructor
-public class ExpenseSummaryResponse {
+public class UpdateMemberRoleRequest {
 
-    private BigDecimal totalSpent;
-    private long totalExpenses;
+    private WorkspaceRole role;
 
 }

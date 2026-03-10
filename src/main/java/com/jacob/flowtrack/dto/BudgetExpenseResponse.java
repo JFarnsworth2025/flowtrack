@@ -9,9 +9,9 @@ import java.math.BigDecimal;
 @Getter
 @Setter
 @AllArgsConstructor
-public class ExpenseSummaryResponse {
+public class BudgetExpenseResponse {
 
-    private BigDecimal totalSpent;
-    private long totalExpenses;
+    private BigDecimal budgetSpent;
+    private long totalBudget;
 
 }
