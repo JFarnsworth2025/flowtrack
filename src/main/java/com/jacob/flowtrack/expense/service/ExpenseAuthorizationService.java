@@ -1,4 +1,4 @@
-package com.jacob.flowtrack.expense;
+package com.jacob.flowtrack.expense.service;
 
 import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.member.WorkspaceMember;

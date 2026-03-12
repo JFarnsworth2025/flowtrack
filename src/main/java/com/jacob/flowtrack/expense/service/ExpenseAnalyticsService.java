@@ -1,5 +1,7 @@
-package com.jacob.flowtrack.expense;
+package com.jacob.flowtrack.expense.service;
 
+import com.jacob.flowtrack.expense.repository.ExpenseRepository;
+import com.jacob.flowtrack.expense.ExpenseSummaryResponse;
 import com.jacob.flowtrack.member.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -2,10 +2,10 @@ package com.jacob.flowtrack.workspace;
 
 import com.jacob.flowtrack.common.DashboardResponse;
 import com.jacob.flowtrack.expense.ExpenseSummaryResponse;
+import com.jacob.flowtrack.expense.service.ExpenseQueryService;
 import com.jacob.flowtrack.member.WorkspaceMemberResponse;
 import com.jacob.flowtrack.common.ApiResponse;
 import com.jacob.flowtrack.security.CustomUserDetails;
-import com.jacob.flowtrack.expense.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -23,12 +23,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class WorkspaceAnalyticsController {
 
-    private final ExpenseService expenseService;
+    private final ExpenseQueryService queryService;
 
     @GetMapping("/{workspaceId}/analytics/summary")
     public ResponseEntity<ApiResponse<ExpenseSummaryResponse>> getWorkspaceSummary(@PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        ExpenseSummaryResponse summary = expenseService.getWorkspaceSummary(workspaceId, customUserDetails.getUser());
+        ExpenseSummaryResponse summary = queryService.getWorkspaceSummary(workspaceId, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(summary));
     }
@@ -36,7 +36,7 @@ public class WorkspaceAnalyticsController {
     @GetMapping("/{workspaceId}/analytics/categories")
     public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getWorkspaceCategories(@PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Map<String, BigDecimal> categories = expenseService.getWorkspaceCategoryBreakdown(workspaceId, customUserDetails.getUser());
+        Map<String, BigDecimal> categories = queryService.getWorkspaceCategoryBreakdown(workspaceId, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(categories));
     }
@@ -44,7 +44,7 @@ public class WorkspaceAnalyticsController {
     @GetMapping("/{workspaceId}/analytics/monthly")
     public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getWorkspaceMonthly(@PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Map<String, BigDecimal> monthly = expenseService.getWorkspaceMonthlyBreakdown(workspaceId, customUserDetails.getUser());
+        Map<String, BigDecimal> monthly = queryService.getWorkspaceMonthlyBreakdown(workspaceId, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(monthly));
     }
@@ -52,7 +52,7 @@ public class WorkspaceAnalyticsController {
     @GetMapping("/{workspaceId}/analytics/dashboard")
     public ResponseEntity<ApiResponse<DashboardResponse>> getExpenseActivity(@PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        DashboardResponse dashboardResponse = expenseService.getWorkspaceDashboard(workspaceId, customUserDetails.getUser());
+        DashboardResponse dashboardResponse = queryService.getWorkspaceDashboard(workspaceId, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(dashboardResponse));
     }
@@ -60,7 +60,7 @@ public class WorkspaceAnalyticsController {
     @GetMapping("/{workspaceId}/members")
     public ResponseEntity<ApiResponse<List<WorkspaceMemberResponse>>> getWorkspaceMembers(@PathVariable Long workspaceId, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<WorkspaceMemberResponse> members = expenseService.getWorkspaceMembers(workspaceId, customUserDetails.getUser());
+        List<WorkspaceMemberResponse> members = queryService.getWorkspaceMembers(workspaceId, customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(members));
     }

@@ -4,7 +4,7 @@ import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.member.WorkspaceMember;
 import com.jacob.flowtrack.member.WorkspaceMemberRepository;
 import com.jacob.flowtrack.auth.UserRepository;
-import com.jacob.flowtrack.expense.ExpenseRepository;
+import com.jacob.flowtrack.expense.repository.ExpenseRepository;
 import com.jacob.flowtrack.workspace.Workspace;
 import com.jacob.flowtrack.workspace.WorkspaceRepository;
 import com.jacob.flowtrack.workspace.WorkspaceRole;

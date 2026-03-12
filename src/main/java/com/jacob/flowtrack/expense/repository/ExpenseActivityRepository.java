@@ -1,5 +1,7 @@
-package com.jacob.flowtrack.expense;
+package com.jacob.flowtrack.expense.repository;
 
+import com.jacob.flowtrack.expense.Expense;
+import com.jacob.flowtrack.expense.ExpenseActivity;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

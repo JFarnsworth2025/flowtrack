@@ -2,6 +2,7 @@ package com.jacob.flowtrack.expense;
 
 import com.jacob.flowtrack.common.DashboardResponse;
 import com.jacob.flowtrack.common.ApiResponse;
+import com.jacob.flowtrack.expense.service.ExpenseQueryService;
 import com.jacob.flowtrack.security.CustomUserDetails;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -18,12 +19,12 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExpenseAnalyticsController {
 
-    private final ExpenseService expense;
+    private final ExpenseQueryService queryService;
 
     @GetMapping("/analytics/summary")
     public ResponseEntity<ApiResponse<ExpenseSummaryResponse>> getOverallSummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        ExpenseSummaryResponse summary = expense.getSummary(customUserDetails.getUser());
+        ExpenseSummaryResponse summary = queryService.getSummary(customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success("Summary retrieved", summary));
     }
@@ -31,7 +32,7 @@ public class ExpenseAnalyticsController {
     @GetMapping("/analytics/categories")
     public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getCategorySummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Map<String, BigDecimal> categories = expense.getCategoryBreakdown(customUserDetails.getUser());
+        Map<String, BigDecimal> categories = queryService.getCategoryBreakdown(customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success("Category breakdown retrieved", categories));
     }
@@ -39,7 +40,7 @@ public class ExpenseAnalyticsController {
     @GetMapping("/analytics/monthly")
     public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getMonthlySummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        Map<String, BigDecimal> monthly = expense.getMonthlyBreakdown(customUserDetails.getUser());
+        Map<String, BigDecimal> monthly = queryService.getMonthlyBreakdown(customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success("Monthly breakdown retrieved", monthly));
     }
@@ -47,7 +48,7 @@ public class ExpenseAnalyticsController {
     @GetMapping("/analytics/dashboard")
     public ResponseEntity<ApiResponse<DashboardResponse>> getDashboard(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        DashboardResponse dashboard = expense.getDashboard(customUserDetails.getUser());
+        DashboardResponse dashboard = queryService.getDashboard(customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success("Dashboard Retrieved", dashboard));
     }

@@ -1,5 +1,9 @@
-package com.jacob.flowtrack.expense;
+package com.jacob.flowtrack.expense.repository;
 
+import com.jacob.flowtrack.expense.CategorySummary;
+import com.jacob.flowtrack.expense.Expense;
+import com.jacob.flowtrack.expense.ExpenseStatus;
+import com.jacob.flowtrack.expense.MonthlySummary;
 import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.workspace.Workspace;
 import org.springframework.data.domain.Page;

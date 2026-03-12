@@ -1,6 +1,7 @@
 package com.jacob.flowtrack.expense;
 
 import com.jacob.flowtrack.common.PaginatedResponse;
+import com.jacob.flowtrack.expense.service.*;
 import com.jacob.flowtrack.security.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -25,14 +26,17 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class ExpenseController {
 
-    private final ExpenseService expenseService;
+    private final ExpenseQueryService queryService;
+    private final ExpenseCommandService commandService;
+    private final ExpenseActivityService activityService;
+    private final ExpenseSearchService searchService;
 
     @PostMapping
     public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody ExpenseRequest request) {
 
         User user = customUserDetails.getUser();
 
-        ExpenseResponse response = expenseService.addExpense(request, user);
+        ExpenseResponse response = commandService.addExpense(request, user);
 
         return ResponseEntity.ok(ApiResponse.success(response));
 
@@ -43,7 +47,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        Page<ExpenseResponse> expenses = expenseService.getWorkspaceExpenses(workspaceId, user, category, min, max, page, size);
+        Page<ExpenseResponse> expenses = queryService.getWorkspaceExpenses(workspaceId, user, category, min, max, page, size);
 
         PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(expenses);
 
@@ -55,7 +59,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        ExpenseSummaryResponse summary = expenseService.getSummary(user);
+        ExpenseSummaryResponse summary = queryService.getSummary(user);
 
         return ResponseEntity.ok(ApiResponse.success(summary));
     }
@@ -65,7 +69,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        ExpenseResponse response = expenseService.updateExpense(id, request, user);
+        ExpenseResponse response = commandService.updateExpense(id, request, user);
 
         return ResponseEntity.ok(ApiResponse.success(response));
 
@@ -75,7 +79,7 @@ public class ExpenseController {
     public ResponseEntity<ApiResponse<String>> deleteExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long id) {
 
         User user = customUserDetails.getUser();
-        expenseService.deleteExpense(id, user);
+        commandService.deleteExpense(id, user);
 
         return ResponseEntity.ok(ApiResponse.success("Expense deleted successfully"));
     }
@@ -85,7 +89,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        List<ExpenseResponse> responses = requests.stream().map(request -> expenseService.addExpense(request, user)).toList();
+        List<ExpenseResponse> responses = requests.stream().map(request -> commandService.addExpense(request, user)).toList();
 
         return ResponseEntity.ok(ApiResponse.success(responses));
     }
@@ -95,7 +99,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        Map<String, BigDecimal> data = expenseService.getCategoryBreakdown(user);
+        Map<String, BigDecimal> data = queryService.getCategoryBreakdown(user);
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }
@@ -105,7 +109,7 @@ public class ExpenseController {
 
         User user = customUserDetails.getUser();
 
-        Map<String, BigDecimal> data = expenseService.getMonthlyBreakdown(user);
+        Map<String, BigDecimal> data = queryService.getMonthlyBreakdown(user);
 
         return ResponseEntity.ok(ApiResponse.success(data));
     }
@@ -113,7 +117,7 @@ public class ExpenseController {
     @GetMapping("/{id}/activity")
     public ResponseEntity<ApiResponse<List<ExpenseActivityResponse>>> getExpenseActivity(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long id, User user) {
 
-        List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id, user);
+        List<ExpenseActivityResponse> activity = activityService.getExpenseActivity(id, user);
 
         return ResponseEntity.ok(ApiResponse.success(activity));
     }
@@ -131,7 +135,7 @@ public class ExpenseController {
                                                                                           ) {
 
         User user = userDetails.getUser();
-        Page<ExpenseResponse> results = expenseService.searchExpenses(workspaceId, keyword, category, min, max, startDate, endDate, pageable);
+        Page<ExpenseResponse> results = searchService.searchExpenses(workspaceId, keyword, category, min, max, startDate, endDate, pageable);
         PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(results);
 
         return ResponseEntity.ok(ApiResponse.success(response));

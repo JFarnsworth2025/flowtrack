@@ -2,8 +2,9 @@ package com.jacob.flowtrack.expense.comments;
 
 import com.jacob.flowtrack.exception.ResourceNotFoundException;
 import com.jacob.flowtrack.expense.Expense;
-import com.jacob.flowtrack.expense.ExpenseAuthorizationService;
-import com.jacob.flowtrack.expense.ExpenseRepository;
+import com.jacob.flowtrack.expense.repository.ExpenseCommentRepository;
+import com.jacob.flowtrack.expense.service.ExpenseAuthorizationService;
+import com.jacob.flowtrack.expense.repository.ExpenseRepository;
 import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.workspace.Workspace;
 import lombok.RequiredArgsConstructor;

@@ -2,8 +2,9 @@ package com.jacob.flowtrack.admin;
 
 import com.jacob.flowtrack.expense.ExpenseResponse;
 import com.jacob.flowtrack.common.ApiResponse;
+import com.jacob.flowtrack.expense.service.ExpenseApprovalService;
+import com.jacob.flowtrack.expense.service.ExpenseQueryService;
 import com.jacob.flowtrack.security.CustomUserDetails;
-import com.jacob.flowtrack.expense.ExpenseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -16,12 +17,13 @@ import java.util.List;
 @RequiredArgsConstructor
 public class AdminExpenseController {
 
-    private final ExpenseService expenseService;
+    private final ExpenseQueryService queryService;
+    private final ExpenseApprovalService approvalService;
 
     @PostMapping("/{id}/approve")
     public ApiResponse<String> approveExpense(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        expenseService.approveExpense(id, customUserDetails.getUser().getFullName());
+        approvalService.approveExpense(id, customUserDetails.getUser().getFullName());
 
         return ApiResponse.success("Expense Approved");
     }
@@ -29,7 +31,7 @@ public class AdminExpenseController {
     @PostMapping("/{id}/reject")
     public ApiResponse<String> rejectExpense(@PathVariable Long id, @AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        expenseService.rejectExpense(id, customUserDetails.getUser().getFullName());
+        approvalService.rejectExpense(id, customUserDetails.getUser().getFullName());
 
         return ApiResponse.success("Expense Denied");
     }
@@ -37,7 +39,7 @@ public class AdminExpenseController {
     @GetMapping("/pending")
     public ResponseEntity<ApiResponse<List<ExpenseResponse>>> getPendingExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
 
-        List<ExpenseResponse> pending = expenseService.getPendingExpenses(customUserDetails.getUser());
+        List<ExpenseResponse> pending = queryService.getPendingExpenses(customUserDetails.getUser());
 
         return ResponseEntity.ok(ApiResponse.success(pending));
     }
