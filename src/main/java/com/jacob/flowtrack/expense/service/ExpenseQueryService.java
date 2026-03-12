@@ -16,6 +16,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
@@ -60,7 +61,7 @@ public class ExpenseQueryService {
     public ExpenseSummaryResponse getWorkspaceSummary(Long workspaceId, User user) {
 
         Workspace workspace = getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         BigDecimal totalSpent = expenseRepository.getTotalSpentByWorkspace(workspaceId);
         long totalExpenses = expenseRepository.countByWorkspace(workspaceId);
@@ -71,7 +72,7 @@ public class ExpenseQueryService {
     public DashboardResponse getWorkspaceDashboard(Long workspaceId, User user) {
 
         Workspace workspace = getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         BigDecimal totalSpent = expenseRepository.getTotalSpentByWorkspace(workspaceId);
         long totalExpenses = expenseRepository.countByWorkspace(workspaceId);
@@ -86,7 +87,7 @@ public class ExpenseQueryService {
     public List<WorkspaceMemberResponse> getWorkspaceMembers(Long workspaceId, User user) {
 
         Workspace workspace = workspaceService.getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         List<WorkspaceMember> members = workspaceMemberRepository.findByWorkspace(workspace);
 
@@ -96,7 +97,6 @@ public class ExpenseQueryService {
     public Map<String, BigDecimal> getWorkspaceCategoryBreakdown(Long workspaceId, User user) {
 
         Workspace workspace = getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
 
         List<CategorySummary> results = expenseRepository.getWorkspaceCategorySummary(workspaceId);
 
@@ -106,17 +106,16 @@ public class ExpenseQueryService {
     public Map<String, BigDecimal> getWorkspaceMonthlyBreakdown(Long workspaceId, User user) {
 
         Workspace workspace = getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
 
         List<MonthlySummary> results = expenseRepository.getWorkspaceMonthlySummary(workspaceId);
 
         return results.stream().collect(Collectors.toMap(r -> r.getYear() + "-" + String.format("%02d", r.getMonth()), MonthlySummary::getTotal, (a,b) -> a, LinkedHashMap::new));
     }
 
+    @PreAuthorize("@workspaceSecurity.isMember(#workspaceId, authentication)")
     public Page<ExpenseResponse> getWorkspaceExpenses(Long workspaceId, User user, String category, BigDecimal min, BigDecimal max, int page, int size) {
 
         Workspace workspace = getWorkspace(workspaceId);
-        authorizationService.verifyWorkspaceMember(user, workspace);
 
         Pageable pageable = PageRequest.of(page, size);
 

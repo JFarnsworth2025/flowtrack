@@ -34,7 +34,7 @@ public class ExpenseActivityService {
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
 
         Workspace workspace = expense.getWorkspace();
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         List<ExpenseActivity> activities = getActivitiesForExpense(expense);
 

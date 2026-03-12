@@ -24,7 +24,6 @@ public class ExpenseCommentService {
     public ExpenseCommentResponse addComment(Long expenseId, ExpenseCommentRequest request, User user) {
 
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
-        authorizationService.verifyWorkspaceMember(user, expense.getWorkspace());
         ExpenseComment parent = null;
 
         if(request.getParentCommentId() != null) {
@@ -41,7 +40,7 @@ public class ExpenseCommentService {
 
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         Workspace workspace = expense.getWorkspace();
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         return commentRepository.findByExpenseOrderByCreatedAtDesc(expense).stream().map(c -> new ExpenseCommentResponse(c.getUser().getFullName(), c.getComment(), c.getCreatedAt())).toList();
     }

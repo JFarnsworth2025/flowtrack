@@ -25,7 +25,7 @@ public class ExpenseCommandService {
     public ExpenseResponse addExpense(ExpenseRequest request, User user) {
 
         Workspace workspace = workspaceRepository.findById(request.getWorkspaceId()).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
-        authorizationService.verifyWorkspaceMember(user, workspace);
+        
 
         Expense expense = Expense.builder().description(request.getDescription()).amount(request.getAmount()).category(request.getCategory()).createdAt(LocalDateTime.now()).status(ExpenseStatus.PENDING).user(user).submittedBy(user).workspace(workspace).build();
         Expense saved = expenseRepository.save(expense);

@@ -124,18 +124,20 @@ public class ExpenseController {
 
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<PaginatedResponse<ExpenseResponse>>> searchExpenses(@AuthenticationPrincipal CustomUserDetails userDetails,
-                                                                                          @RequestParam(required = false) Long workspaceId,
+                                                                                          @RequestParam Long workspaceId,
                                                                                           @RequestParam(required = false) String keyword,
                                                                                           @RequestParam(required = false) String category,
                                                                                           @RequestParam(required = false) BigDecimal min,
                                                                                           @RequestParam(required = false) BigDecimal max,
                                                                                           @RequestParam(required = false) LocalDateTime startDate,
                                                                                           @RequestParam(required = false) LocalDateTime endDate,
+                                                                                          @RequestParam(required = false) ExpenseStatus status,
+                                                                                          @RequestParam(required = false) String fullName,
                                                                                           @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
                                                                                           ) {
 
         User user = userDetails.getUser();
-        Page<ExpenseResponse> results = searchService.searchExpenses(workspaceId, keyword, category, min, max, startDate, endDate, pageable);
+        Page<ExpenseResponse> results = searchService.searchExpenses(workspaceId, keyword, category, min, max, startDate, endDate, status, fullName, pageable);
         PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(results);
 
         return ResponseEntity.ok(ApiResponse.success(response));
