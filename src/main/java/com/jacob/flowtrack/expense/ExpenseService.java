@@ -274,4 +274,12 @@ public class ExpenseService {
 
         return members.stream().map(m -> new WorkspaceMemberResponse(m.getUser().getFullName(), m.getRole(), m.getJoinedAt())).toList();
     }
+
+    public Page<ExpenseResponse> searchExpenses(Long workspaceId, String keyword, String category, BigDecimal min, BigDecimal max, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) {
+
+        var spec = ExpenseSpecification.search(workspaceId, keyword, category, min, max, startDate, endDate);
+        Page<Expense> expenses = expenseRepository.findAll(spec, pageable);
+
+        return expenses.map(this::mapToResponse);
+    }
 }

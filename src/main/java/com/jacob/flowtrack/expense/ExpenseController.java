@@ -2,6 +2,9 @@ package com.jacob.flowtrack.expense;
 
 import com.jacob.flowtrack.common.PaginatedResponse;
 import com.jacob.flowtrack.security.CustomUserDetails;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jacob.flowtrack.member.User;
@@ -13,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 
@@ -112,5 +116,24 @@ public class ExpenseController {
         List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id, user);
 
         return ResponseEntity.ok(ApiResponse.success(activity));
+    }
+
+    @GetMapping("/search")
+    public ResponseEntity<ApiResponse<PaginatedResponse<ExpenseResponse>>> searchExpenses(@AuthenticationPrincipal CustomUserDetails userDetails,
+                                                                                          @RequestParam(required = false) Long workspaceId,
+                                                                                          @RequestParam(required = false) String keyword,
+                                                                                          @RequestParam(required = false) String category,
+                                                                                          @RequestParam(required = false) BigDecimal min,
+                                                                                          @RequestParam(required = false) BigDecimal max,
+                                                                                          @RequestParam(required = false) LocalDateTime startDate,
+                                                                                          @RequestParam(required = false) LocalDateTime endDate,
+                                                                                          @PageableDefault(sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable
+                                                                                          ) {
+
+        User user = userDetails.getUser();
+        Page<ExpenseResponse> results = expenseService.searchExpenses(workspaceId, keyword, category, min, max, startDate, endDate, pageable);
+        PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(results);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
     }
 }
