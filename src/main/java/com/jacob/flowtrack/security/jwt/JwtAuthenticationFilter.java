@@ -1,6 +1,6 @@
 package com.jacob.flowtrack.security.jwt;
 
-import com.jacob.flowtrack.service.CustomUserDetailsService;
+import com.jacob.flowtrack.security.CustomUserDetailsService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;

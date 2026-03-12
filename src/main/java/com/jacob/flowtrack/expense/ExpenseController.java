@@ -1,0 +1,116 @@
+package com.jacob.flowtrack.expense;
+
+import com.jacob.flowtrack.common.PaginatedResponse;
+import com.jacob.flowtrack.security.CustomUserDetails;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.RequestParam;
+import com.jacob.flowtrack.member.User;
+import com.jacob.flowtrack.common.ApiResponse;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.math.BigDecimal;
+import java.util.List;
+import java.util.Map;
+
+@RestController
+@RequestMapping("/expenses")
+@RequiredArgsConstructor
+public class ExpenseController {
+
+    private final ExpenseService expenseService;
+
+    @PostMapping
+    public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody ExpenseRequest request) {
+
+        User user = customUserDetails.getUser();
+
+        ExpenseResponse response = expenseService.addExpense(request, user);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
+
+    @GetMapping
+    public ResponseEntity<ApiResponse<PaginatedResponse<ExpenseResponse>>> getExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestParam Long workspaceId, @RequestParam(required = false) String category, @RequestParam(required = false) BigDecimal min, @RequestParam(required = false) BigDecimal max, @RequestParam(defaultValue = "0") int page, @RequestParam(defaultValue = "10") int size) {
+
+        User user = customUserDetails.getUser();
+
+        Page<ExpenseResponse> expenses = expenseService.getWorkspaceExpenses(workspaceId, user, category, min, max, page, size);
+
+        PaginatedResponse<ExpenseResponse> response = PaginatedResponse.from(expenses);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+    }
+
+    @GetMapping("/summary")
+    public ResponseEntity<ApiResponse<ExpenseSummaryResponse>> getSummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User user = customUserDetails.getUser();
+
+        ExpenseSummaryResponse summary = expenseService.getSummary(user);
+
+        return ResponseEntity.ok(ApiResponse.success(summary));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<ApiResponse<ExpenseResponse>> updateExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long id, @Valid @RequestBody ExpenseRequest request) {
+
+        User user = customUserDetails.getUser();
+
+        ExpenseResponse response = expenseService.updateExpense(id, request, user);
+
+        return ResponseEntity.ok(ApiResponse.success(response));
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<ApiResponse<String>> deleteExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long id) {
+
+        User user = customUserDetails.getUser();
+        expenseService.deleteExpense(id, user);
+
+        return ResponseEntity.ok(ApiResponse.success("Expense deleted successfully"));
+    }
+
+    @PostMapping("/bulk")
+    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> addExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody List<ExpenseRequest> requests) {
+
+        User user = customUserDetails.getUser();
+
+        List<ExpenseResponse> responses = requests.stream().map(request -> expenseService.addExpense(request, user)).toList();
+
+        return ResponseEntity.ok(ApiResponse.success(responses));
+    }
+
+    @GetMapping("/summary/categories")
+    public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getCategorySummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User user = customUserDetails.getUser();
+
+        Map<String, BigDecimal> data = expenseService.getCategoryBreakdown(user);
+
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    @GetMapping("/summary/monthly")
+    public ResponseEntity<ApiResponse<Map<String, BigDecimal>>> getMonthlySummary(@AuthenticationPrincipal CustomUserDetails customUserDetails) {
+
+        User user = customUserDetails.getUser();
+
+        Map<String, BigDecimal> data = expenseService.getMonthlyBreakdown(user);
+
+        return ResponseEntity.ok(ApiResponse.success(data));
+    }
+
+    @GetMapping("/{id}/activity")
+    public ResponseEntity<ApiResponse<List<ExpenseActivityResponse>>> getExpenseActivity(@AuthenticationPrincipal CustomUserDetails customUserDetails, @PathVariable Long id, User user) {
+
+        List<ExpenseActivityResponse> activity = expenseService.getExpenseActivity(id, user);
+
+        return ResponseEntity.ok(ApiResponse.success(activity));
+    }
+}

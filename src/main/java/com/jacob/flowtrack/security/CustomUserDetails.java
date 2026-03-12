@@ -1,6 +1,10 @@
 package com.jacob.flowtrack.security;
 
-import com.jacob.flowtrack.entity.User;
+import com.jacob.flowtrack.auth.UserRepository;
+import com.jacob.flowtrack.member.User;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -8,17 +12,12 @@ import org.springframework.security.core.userdetails.UserDetails;
 import java.util.Collection;
 import java.util.List;
 
+@Getter
+@Setter
+@AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private final User user;
-
-    public CustomUserDetails(User user) {
-        this.user = user;
-    }
-
-    public User getUser() {
-        return user;
-    }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -32,7 +31,7 @@ public class CustomUserDetails implements UserDetails {
 
     @Override
     public String getUsername() {
-        return user.getUsername();
+        return user.getEmail(); // login identifier
     }
 
     @Override public boolean isAccountNonExpired() { return true; }

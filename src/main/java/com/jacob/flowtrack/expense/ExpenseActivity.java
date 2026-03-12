@@ -1,0 +1,31 @@
+package com.jacob.flowtrack.expense;
+
+import com.jacob.flowtrack.member.User;
+import jakarta.persistence.*;
+import lombok.*;
+
+import java.time.LocalDateTime;
+
+@Entity
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
+public class ExpenseActivity {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    @ManyToOne
+    private Expense expense;
+
+    @ManyToOne
+    private User user;
+
+    private String action;
+
+    private LocalDateTime createdAt;
+
+}
