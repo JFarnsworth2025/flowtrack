@@ -6,6 +6,7 @@ import com.jacob.flowtrack.security.CustomUserDetails;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.MediaType;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.RequestParam;
 import com.jacob.flowtrack.member.User;
@@ -15,6 +16,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -31,12 +33,12 @@ public class ExpenseController {
     private final ExpenseActivityService activityService;
     private final ExpenseSearchService searchService;
 
-    @PostMapping
-    public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody ExpenseRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<ExpenseResponse>> addExpense(@AuthenticationPrincipal CustomUserDetails customUserDetails, @RequestPart("expense") @Valid ExpenseRequest request, @RequestPart(value = "receipt", required = false) MultipartFile receipt) {
 
         User user = customUserDetails.getUser();
 
-        ExpenseResponse response = commandService.addExpense(request, user);
+        ExpenseResponse response = commandService.addExpense(request, user, receipt);
 
         return ResponseEntity.ok(ApiResponse.success(response));
 
@@ -82,16 +84,6 @@ public class ExpenseController {
         commandService.deleteExpense(id, user);
 
         return ResponseEntity.ok(ApiResponse.success("Expense deleted successfully"));
-    }
-
-    @PostMapping("/bulk")
-    public ResponseEntity<ApiResponse<List<ExpenseResponse>>> addExpenses(@AuthenticationPrincipal CustomUserDetails customUserDetails, @Valid @RequestBody List<ExpenseRequest> requests) {
-
-        User user = customUserDetails.getUser();
-
-        List<ExpenseResponse> responses = requests.stream().map(request -> commandService.addExpense(request, user)).toList();
-
-        return ResponseEntity.ok(ApiResponse.success(responses));
     }
 
     @GetMapping("/summary/categories")

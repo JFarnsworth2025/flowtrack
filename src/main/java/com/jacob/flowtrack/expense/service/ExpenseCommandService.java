@@ -9,6 +9,7 @@ import com.jacob.flowtrack.workspace.Workspace;
 import com.jacob.flowtrack.workspace.WorkspaceRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 
@@ -22,7 +23,7 @@ public class ExpenseCommandService {
     private final ExpenseActivityService activityService;
     private final ExpenseMapper mapper;
 
-    public ExpenseResponse addExpense(ExpenseRequest request, User user) {
+    public ExpenseResponse addExpense(ExpenseRequest request, User user, MultipartFile receipt) {
 
         Workspace workspace = workspaceRepository.findById(request.getWorkspaceId()).orElseThrow(() -> new ResourceNotFoundException("Workspace not found"));
         
