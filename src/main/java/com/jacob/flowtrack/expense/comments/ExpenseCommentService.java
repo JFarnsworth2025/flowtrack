@@ -25,12 +25,13 @@ public class ExpenseCommentService {
 
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
         ExpenseComment parent = null;
+        authorizationService.checkExpenseAccess(expense, user);
 
         if(request.getParentCommentId() != null) {
             parent = commentRepository.findById(request.getParentCommentId()).orElseThrow(() -> new RuntimeException("Parent comment not found"));
         }
 
-        ExpenseComment comment = ExpenseComment.builder().expense(expense).user(user).comment(request.getComment()).createdAt(LocalDateTime.now()).build();
+        ExpenseComment comment = ExpenseComment.builder().expense(expense).user(user).comment(request.getComment()).createdAt(LocalDateTime.now()).parent(parent).build();
         ExpenseComment saved = commentRepository.save(comment);
 
         return new ExpenseCommentResponse(saved.getUser().getFullName(), saved.getComment(), saved.getCreatedAt());
@@ -39,8 +40,7 @@ public class ExpenseCommentService {
     public List<ExpenseCommentResponse> getComments(Long expenseId, User user) {
 
         Expense expense = expenseRepository.findById(expenseId).orElseThrow(() -> new ResourceNotFoundException("Expense not found"));
-        Workspace workspace = expense.getWorkspace();
-        
+        authorizationService.checkExpenseAccess(expense, user);
 
         return commentRepository.findByExpenseOrderByCreatedAtDesc(expense).stream().map(c -> new ExpenseCommentResponse(c.getUser().getFullName(), c.getComment(), c.getCreatedAt())).toList();
     }

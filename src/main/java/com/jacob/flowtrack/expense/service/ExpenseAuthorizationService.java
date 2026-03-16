@@ -1,5 +1,6 @@
 package com.jacob.flowtrack.expense.service;
 
+import com.jacob.flowtrack.expense.Expense;
 import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.member.WorkspaceMember;
 import com.jacob.flowtrack.member.WorkspaceMemberRepository;
@@ -14,16 +15,22 @@ public class ExpenseAuthorizationService {
     private final WorkspaceMemberRepository workspaceMemberRepository;
 
     public void verifyWorkspaceMember(User user, Workspace workspace) {
-
         boolean isMember = workspaceMemberRepository.existsByUserAndWorkspace(user, workspace);
         if(!isMember) {
             throw new RuntimeException("You are not a member of this workspace");
         }
-
     }
 
     public WorkspaceMember getMembership(User user, Workspace workspace) {
         return workspaceMemberRepository.findByUserAndWorkspace(user, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+    }
+
+    public void checkExpenseAccess(Expense expense, User user) {
+        Workspace workspace = expense.getWorkspace();
+        boolean isMember = workspaceMemberRepository.existsByUserAndWorkspace(user, workspace);
+        if(!isMember) {
+            throw new RuntimeException("You are not a member of this workspace.");
+        }
     }
 
 }
