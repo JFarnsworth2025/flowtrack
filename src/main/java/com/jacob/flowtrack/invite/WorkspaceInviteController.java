@@ -22,7 +22,7 @@ public class WorkspaceInviteController {
 
     @DeleteMapping("/{workspaceId}/invites/{inviteId}")
     public ResponseEntity<ApiResponse<String>> cancelInvite(@PathVariable Long workspaceId, @PathVariable Long inviteId, Authentication authentication) {
-        inviteService.cancelinvite(workspaceId, inviteId, authentication.getName());
+        inviteService.cancelInvite(workspaceId, inviteId, authentication.getName());
         return ResponseEntity.ok(ApiResponse.success("Invite canceled"));
     }
 

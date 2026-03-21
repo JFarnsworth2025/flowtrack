@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.RestController;
 public class ReceiptController {
 
     private final ExpenseReceiptService receiptService;
-    private final ReceiptDownloadResponse downloadResponse;
 
     @GetMapping("/{id}/download")
     public ResponseEntity<Resource> downloadReceipt(@AuthenticationPrincipal CustomUserDetails userDetails, @PathVariable Long id) {

@@ -1,5 +1,7 @@
 package com.jacob.flowtrack.invite;
 
+import com.jacob.flowtrack.exception.BadRequestException;
+import com.jacob.flowtrack.exception.UnauthorizedException;
 import com.jacob.flowtrack.member.User;
 import com.jacob.flowtrack.member.WorkspaceMember;
 import com.jacob.flowtrack.member.WorkspaceMemberRepository;
@@ -23,21 +25,21 @@ public class InviteService {
 
     public InviteResponse createInvite(Long workspaceId, InviteRequest request, String email) {
 
-        User inviter = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new RuntimeException("Workspace not found"));
-        WorkspaceMember member = memberRepository.findByUserAndWorkspace(inviter, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
-        User existingUser = userRepository.findByEmail(email).orElse(null);
+        User inviter = userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new BadRequestException("Workspace not found"));
+        WorkspaceMember member = memberRepository.findByUserAndWorkspace(inviter, workspace).orElseThrow(() -> new UnauthorizedException("Not a workspace member"));
+        User existingUser = userRepository.findByEmail(request.getEmail()).orElse(null);
 
         if(member.getRole() == WorkspaceRole.USER) {
-            throw new RuntimeException("Not authorized to invite users");
+            throw new UnauthorizedException("Not authorized to invite users");
         }
 
         if(existingUser != null && memberRepository.existsByUserAndWorkspace(existingUser, workspace)) {
-            throw new RuntimeException("User is already a workspace member");
+            throw new BadRequestException("User is already a workspace member");
         }
 
         if(inviteRepository.existsByEmailAndWorkspaceAndStatus(request.getEmail(), workspace, InviteStatus.PENDING)) {
-            throw new RuntimeException("User already has a pending invite");
+            throw new BadRequestException("User already has a pending invite");
         }
 
         WorkspaceInvite invite = new WorkspaceInvite();
@@ -57,19 +59,19 @@ public class InviteService {
 
     public void acceptInvite(String token, String email) {
 
-        WorkspaceInvite invite = inviteRepository.findByToken(token).orElseThrow(() -> new RuntimeException("Invalid invite"));
+        WorkspaceInvite invite = inviteRepository.findByToken(token).orElseThrow(() -> new BadRequestException("Invalid invite"));
 
         if(invite.getStatus() != InviteStatus.PENDING) {
-            throw new RuntimeException("Invite already used");
+            throw new BadRequestException("Invite already used");
         }
 
         if(invite.getExpiresAt().isBefore(LocalDateTime.now())) {
             invite.setStatus(InviteStatus.EXPIRED);
             inviteRepository.save(invite);
-            throw new RuntimeException("Invite expired");
+            throw new BadRequestException("Invite expired");
         }
 
-        User user = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
 
         WorkspaceMember member = new WorkspaceMember();
         member.setWorkspace(invite.getWorkspace());
@@ -84,32 +86,30 @@ public class InviteService {
 
     public List<InviteInfoDTO> getWorkspaceInvites(Long workspaceId, String email) {
 
-        User requester = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new RuntimeException("Workspace not found"));
-        memberRepository.findByUserAndWorkspace(requester, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+        User requester = userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new BadRequestException("Workspace not found"));
+        memberRepository.findByUserAndWorkspace(requester, workspace).orElseThrow(() -> new BadRequestException("Not a workspace member"));
 
         List<WorkspaceInvite> invites = inviteRepository.findByWorkspace(workspace);
 
         return invites.stream().map(invite -> new InviteInfoDTO(invite.getEmail(), invite.getRole(), invite.getStatus(), invite.getInvitedBy().getFullName(), invite.getExpiresAt())).toList();
     }
 
-    public void cancelinvite(Long workspaceId, Long inviteId, String email) {
+    public void cancelInvite(Long workspaceId, Long inviteId, String email) {
 
-        User requester = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
-        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new RuntimeException("Workspace not found"));
-        WorkspaceMember member = memberRepository.findByUserAndWorkspace(requester, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+        User requester = userRepository.findByEmail(email).orElseThrow(() -> new BadRequestException("User not found"));
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new BadRequestException("Workspace not found"));
+        WorkspaceMember member = memberRepository.findByUserAndWorkspace(requester, workspace).orElseThrow(() -> new BadRequestException("Not a workspace member"));
 
         if(member.getRole() == WorkspaceRole.USER) {
-            throw new RuntimeException("Not authorized to cancel invites");
+            throw new UnauthorizedException("Not authorized to cancel invites");
         }
 
-        WorkspaceInvite invite = inviteRepository.findById(inviteId).orElseThrow(() -> new RuntimeException("Invite not found"));
+        WorkspaceInvite invite = inviteRepository.findById(inviteId).orElseThrow(() -> new BadRequestException("Invite not found"));
 
         if(!invite.getWorkspace().getId().equals(workspaceId)) {
-            throw new RuntimeException("Invite does not belong to this workspace");
+            throw new BadRequestException("Invite does not belong to this workspace");
         }
-
         inviteRepository.delete(invite);
     }
-
 }
