@@ -58,18 +58,6 @@ public class WorkspaceBudgetService {
         return budgetRepository.findByWorkspace(workspace);
     }
 
-    public BigDecimal checkBudgetRemaining(Workspace workspace, String category) {
-
-        WorkspaceBudget budget = budgetRepository.findByWorkspaceAndCategory(workspace, category).orElse(null);
-
-        if(budget == null) { return null; }
-
-        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0);
-        BigDecimal spent = expenseRepository.sumCategorySpendingForMonth(workspace, category, startOfMonth);
-
-        return budget.getMonthlyLimit().subtract(spent);
-    }
-
     public BigDecimal getRemainingBudget(Workspace workspace, String category) {
 
         WorkspaceBudget budget = budgetRepository.findByWorkspaceAndCategory(workspace, category).orElse(null);
@@ -79,7 +67,28 @@ public class WorkspaceBudgetService {
 
         BigDecimal spent = expenseRepository.sumCategorySpendingForMonth(workspace, category, startOfMonth);
 
+        if(spent == null) {
+            spent = BigDecimal.ZERO;
+        }
+
         return budget.getMonthlyLimit().subtract(spent);
+    }
+
+    public List<BudgetStatusResponse> getBudgetStatus(Long workspaceId, String email) {
+        User requester = userRepository.findByEmail(email).orElseThrow(() -> new RuntimeException("User not found"));
+        Workspace workspace = workspaceRepository.findById(workspaceId).orElseThrow(() -> new RuntimeException("Workspace not found"));
+        memberRepository.findByUserAndWorkspace(requester, workspace).orElseThrow(() -> new RuntimeException("Not a workspace member"));
+        List<WorkspaceBudget> budgets = budgetRepository.findByWorkspace(workspace);
+        LocalDateTime startOfMonth = LocalDateTime.now().withDayOfMonth(1).withHour(0).withMinute(0).withSecond(0);
+        return budgets.stream().map(budget -> {
+            BigDecimal spent = expenseRepository.sumCategorySpendingForMonth(workspace, budget.getCategory(), startOfMonth);
+            if (spent == null) {
+                spent = BigDecimal.ZERO;
+            }
+            BigDecimal remaining = budget.getMonthlyLimit().subtract(spent);
+            boolean exceeded = spent.compareTo(budget.getMonthlyLimit()) > 0;
+            return new BudgetStatusResponse(budget.getCategory(), budget.getMonthlyLimit(), spent, remaining, exceeded);
+        }).toList();
     }
 
 }
